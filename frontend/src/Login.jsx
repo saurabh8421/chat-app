@@ -10,6 +10,7 @@ function Login() {
   const [showPass, setshowPass] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name,setName] = useState('');
   
   const navigate = useNavigate(); // Correct way to navigate
 
@@ -24,10 +25,17 @@ function Login() {
 
       console.log(response);
       toast.success("Login successful!", { autoClose: 2000 });
+      //first clear the local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('id');
+
 
       // Store user ID before redirecting
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('id', response.data.userId);
+      localStorage.setItem('name', response.data.name);
+      console.log()
+
       
 
       setTimeout(() => {

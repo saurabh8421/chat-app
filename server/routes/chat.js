@@ -24,17 +24,29 @@ router.post('/send', async (req, res) => {
 });
 
 
-router.get('/messages/:id',
-    async (req, res) => {
-        try {
-            const id = req.params.id;
-            const messages = await Message.find({ receiver: id });
-            res.json(messages);
-            } catch (err) {
-                console.error(err);
-                res.status(500).json({ msg: 'Error fetching messages', error: err.message });
-                }
-                }
-)
+router.get('/messages/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Receiver's ID
+        const userId = req.query.userId; // Get sender ID from query params
+
+        if (!userId) {
+            return res.status(400).json({ msg: 'Sender ID is required' });
+        }
+
+        const messages = await Message.find({
+            $or: [
+                { sender: userId, receiver: id },
+                { sender: id, receiver: userId }
+            ]
+        }) // Sort messages chronologically
+
+        res.json(messages);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Error fetching messages', error: err.message });
+    }
+});
+
+
 
 module.exports = router;
