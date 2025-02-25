@@ -15,7 +15,7 @@ function Signup() {
 
     const handleSubmit=(e)=>{
         e.preventDefault()
-        axios.post('http://localhost:3000/auth/register',{name,password,email})
+        axios.post('https://chat-app-ssra.onrender.com/auth/register',{name,password,email})
         .then(result=>{console.log("result",result)
             toast.success("Registration successful!", { autoClose: 2000 });
             

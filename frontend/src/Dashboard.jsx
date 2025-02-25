@@ -28,7 +28,7 @@ function Dashboard() {
     useEffect(() => {
       const userId =  console.log(localStorage.getItem('id'))
         axios
-          .get('http://localhost:3000/auth/getallmembers')
+          .get('https://chat-app-ssra.onrender.com/auth/getallmembers')
           .then(response => {
             // Assuming the members data is in response.data
             setMembers(response.data);

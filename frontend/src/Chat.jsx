@@ -18,7 +18,7 @@ function Chat() {
 
   // Fetch messages
   useEffect(() => {
-    axios.get(`http://localhost:3000/chat/messages/${receiver}?userId=${sender}`)
+    axios.get(`https://chat-app-ssra.onrender.com/chat/messages/${receiver}?userId=${sender}`)
 
       .then(response => {
         console.log(response.data);
@@ -40,7 +40,7 @@ function Chat() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      axios.post('http://localhost:3000/chat/send', { sender, receiver, message })
+      axios.post('https://chat-app-ssra.onrender.com/chat/send', { sender, receiver, message })
         .then(res => console.log(res.data));
 
       setMessage('');

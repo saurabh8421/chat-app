@@ -21,7 +21,7 @@ function Login() {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', { email, password });
+      const response = await axios.post('https://chat-app-ssra.onrender.com/auth/login', { email, password });
 
       console.log(response);
       toast.success("Login successful!", { autoClose: 2000 });
