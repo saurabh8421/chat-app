@@ -11,9 +11,9 @@ const UserMenu = ({ username, userImage, onLogout }) => {
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 capitalize bg-gray-800 text-white px-4 py-2 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+        className="flex items-center space-x-2 capitalize bg-gray-800 dark:bg-sky-500 text-white px-4 py-2 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
       >
-        <img className="w-8 h-8 rounded-full bg-white" src={userImage} alt="User" />
+        <img className="w-8 h-8 rounded-full bg-white dark:bg-sky-500" src={userImage} alt="User" />
         <span>{username}</span>
         <FaChevronDown />
 

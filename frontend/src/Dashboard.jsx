@@ -48,7 +48,7 @@ function Dashboard() {
 
     
 
-<nav className=" top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+<nav className=" top-0 z-50 w-full bg-gradient-to-r from-sky-700 to-sky-200 dark:from-slate-900 border-r  border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
   <div className="px-3 py-3 lg:px-5 lg:pl-3">
     <div className="flex items-center justify-between">
       <div className="flex items-center justify-start rtl:justify-end">
@@ -75,8 +75,8 @@ function Dashboard() {
 </nav>
 <div className='flex'> 
 
-<aside id="logo-sidebar" className={`max-h-screen md:h-auto fixed md:relative ${isSidebarOpen?"hidden":"block"}  md:block flex-auto top-0 left-0 z-40 w-64 h-screen pt-1 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar`}>
-   <div className=" px-3 overflow-y-auto bg-white dark:bg-gray-800 ">
+<aside id="logo-sidebar" className={`max-h-screen md:h-auto fixed md:relative ${isSidebarOpen?"hidden":"block"}  md:block flex-auto bg-sky-200 top-0 left-0 z-40 w-64 h-screen pt-1 transition-transform -translate-x-full  border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar`}>
+   <div className=" px-3 overflow-y-auto bg-sky-200 dark:bg-gray-800 ">
       <ul className="space-y-2 font-medium">
 
 
@@ -91,7 +91,7 @@ function Dashboard() {
   to={`/dashboard/chat/${member._id}`} 
   className={({ isActive }) => 
     `flex capitalize items-center p-2 rounded-lg group 
-    ${isActive ? "bg-blue-500 text-white dark:bg-blue-600" : "text-gray-900 dark:text-white"} 
+    ${isActive ? "bg-gradient-to-r from-sky-700 to-sky-200 border-r text-white dark:bg-sky-400" : "text-gray-900 dark:text-white"} 
     hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-700`
   }
 >
@@ -115,7 +115,7 @@ function Dashboard() {
 </aside>
 
 <div className="p-4 flex-auto bottom-0 max-w-screen">
-   <div className="text w-full  border-2 border-gray-200 dark:border-gray-700 max-w-screen">
+   <div className="text w-full  border-2  border-gray-200 dark:border-gray-700 max-w-screen">
       <Outlet/>
     
    </div>

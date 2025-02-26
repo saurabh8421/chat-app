@@ -4,97 +4,94 @@ import { FaRegSmile } from "react-icons/fa";
 import EmojiPicker from 'emoji-picker-react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { io } from "socket.io-client";
 
+const socket = io('https://chat-app-ssra.onrender.com'); 
 function Chat() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const chatEndRef = useRef(null);
 
   const { id } = useParams();
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  const chatEndRef = useRef(null);
   const receiver = id;
   const sender = localStorage.getItem('id');
 
-  // Fetch messages
   useEffect(() => {
+    socket.emit('join', sender); 
+
+    socket.on('receiveMessage', (newMessage) => {
+      console.log('New Message Received:', newMessage);
+      setMessages(prev => [...prev, newMessage]);
+    });
+
+    return () => {
+      socket.off('receiveMessage');
+    };
+  }, [sender]);
+
+  // Fetch previous messages
+  useEffect(() => {
+    if (!receiver || !sender) return;
+
     axios.get(`https://chat-app-ssra.onrender.com/chat/messages/${receiver}?userId=${sender}`)
+      .then(response => setMessages(response.data))
+      .catch(error => console.error("Error fetching messages:", error));
 
-      .then(response => {
-        console.log(response.data);
-        setMessages(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }, [id, message]);
+  }, [receiver, sender]);
 
+  // Auto-scroll to latest message
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({});
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleEmojiClick = (emojiData) => {
-    setMessage((prev) => prev + emojiData.emoji);
+    setMessage(prev => prev + emojiData.emoji);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (message.trim()) {
-      axios.post('https://chat-app-ssra.onrender.com/chat/send', { sender, receiver, message })
-        .then(res => console.log(res.data));
+    if (!message.trim()) return;
 
-      setMessage('');
+    const newMessage = { sender, receiver, message, createdAt: new Date().toISOString() };
+
+    try {
+      const res = await axios.post('https://chat-app-ssra.onrender.com/chat/send', newMessage);
+      if (res.status === 200) {
+        setMessages(prev => [...prev, newMessage]); // Optimistic update
+        socket.emit('sendMessage', newMessage); // Send message via WebSocket
+        setMessage('');
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
     }
-  };
-
-  // Function to format dates
-  const formatDate = (dateString) => {
-    const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
     <>
-      <div className="chat-container md:w-240 h-screen max-h-[calc(100vh-180px)] bg-gray-100 overflow-y-scroll custom-scrollbar p-4 max-w-screen">
-        <div className="chat-header max-w-screen">
+      <div className="chat-container md:w-240 h-screen max-h-[calc(100vh-180px)] bg-sky-100 overflow-y-scroll custom-scrollbar p-4 max-w-screen">
+        <div className="chat-header max-w-screen bg-sky-100">
           <ul>
             {messages.length > 0 &&
-              messages.reduce((acc, message, index) => {
-                const messageDate = formatDate(message.createdAt);
-                const previousDate = index > 0 ? formatDate(messages[index - 1].createdAt) : null;
-
-                // Add date separator if it's the first message of the day
-                if (messageDate !== previousDate) {
-                  acc.push(
-                    <li key={`date-${index}`} className="text-center  text-gray-500 my-2 text-sm">
-                      {messageDate}
-                    </li>
-                  );
-                }
-
-                acc.push(
-                  <li key={index} className={`flex m-2 ${message.sender !== sender ? 'justify-start' : 'justify-end'}`}>
-                    <div className={`max-w-xs p-2 rounded-xl shadow-md ${message.sender === sender ? 'rounded-tl-none' : 'rounded-tr-none'}`}
-                      style={{ backgroundColor: message.sender !== sender ? '#ffffff' : '#5ac8fa' }}>
-                      <p className="text-black">
-                        {message.message}
-                        <sub className="pl-4 text-gray-500 text-xs">
-                          {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </sub>
-                      </p>
-                    </div>
-                  </li>
-                );
-
-                return acc;
-              }, [])}
-
+              messages.map((message, index) => (
+                <li key={index} className={`flex m-2 ${message.sender !== sender ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`max-w-xs p-2 rounded-xl shadow-md ${message.sender === sender ? 'rounded-tl-none' : 'rounded-tr-none'}`}
+                    style={{ backgroundColor: message.sender !== sender ? '#ffffff' : '#5ac8fa' }}>
+                    <p className="text-black">
+                      {message.message}
+                      <sub className="pl-4 text-gray-500 text-xs">
+                        {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </sub>
+                    </p>
+                  </div>
+                </li>
+              ))}
             <div ref={chatEndRef}></div>
           </ul>
         </div>
       </div>
 
-      <div className="flex flex-col w-full p-4 border-t">
+      <div className="flex flex-col w-full p-4 border-t bg-sky-200 dark:bg-slate-900 dark:text-white">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <button
             type="button"
@@ -114,7 +111,7 @@ function Chat() {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="flex-1 p-2 border rounded-lg"
+            className="flex-1 p-2 border rounded-lg bg-gray-100 text-black border-sky-400"
             placeholder="Type a message"
           />
 
@@ -123,7 +120,7 @@ function Chat() {
           </button>
         </form>
       </div>
-
+      <style>
       <style>
         {`
           .custom-scrollbar::-webkit-scrollbar {
@@ -144,6 +141,7 @@ function Chat() {
             background: #555;
           }
         `}
+      </style>
       </style>
     </>
   );
